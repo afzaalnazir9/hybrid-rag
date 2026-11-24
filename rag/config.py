@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     # Claude
     anthropic_api_key: str = ""
     claude_model: str = "claude-opus-5-5"
+    claude_effort: str = "medium"  # low | medium | high | xhigh | max
+    max_tokens: int = 64000  # upper bound only; answers are streamed
 
     # Storage
     qdrant_path: Path = Path("data/qdrant")

@@ -26,6 +26,14 @@ uv run python -m rag.retrieve "What does error NB-4012 mean?" --mode keyword
 
 Each result shows its score from every stage (semantic, keyword, RRF, rerank).
 
+Ask a question and get a cited answer from Claude (needs `ANTHROPIC_API_KEY` in `.env`):
+
+```bash
+uv run python -m rag.generate "Can I get a refund on a yearly plan?"
+```
+
+Each retrieved chunk is sent to Claude as a separate document with citations enabled, so the `[n]` markers in the answer point at the exact passages used.
+
 Supported files: `.pdf`, `.docx`, `.txt`, `.md`. Re-running skips unchanged files, and a changed file replaces its old chunks. Use `--reset` to start over.
 
 The `sample_data/` documents describe **Nimbus Notes**, a fictional app written for this demo. They include error codes like `NB-4012` that show where keyword search beats semantic search.
