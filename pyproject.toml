@@ -36,3 +36,4 @@ select = ["E", "F", "I", "B", "UP", "SIM"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["integration: uses the real local models (downloads ~200 MB on first run)"]

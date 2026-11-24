@@ -3,6 +3,7 @@
 from functools import lru_cache
 
 from fastembed import SparseTextEmbedding, TextEmbedding
+from fastembed.rerank.cross_encoder import TextCrossEncoder
 from qdrant_client import QdrantClient, models
 
 from rag.config import get_settings
@@ -29,6 +30,12 @@ def dense_model() -> TextEmbedding:
 def sparse_model() -> SparseTextEmbedding:
     s = get_settings()
     return SparseTextEmbedding(s.sparse_model, cache_dir=str(s.model_cache_dir))
+
+
+@lru_cache
+def rerank_model() -> TextCrossEncoder:
+    s = get_settings()
+    return TextCrossEncoder(s.rerank_model, cache_dir=str(s.model_cache_dir))
 
 
 def ensure_collection(client: QdrantClient) -> None:

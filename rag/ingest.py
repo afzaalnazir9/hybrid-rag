@@ -8,6 +8,7 @@ Usage:
 import argparse
 import hashlib
 import re
+import sys
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
@@ -172,6 +173,7 @@ def main() -> None:
     parser.add_argument("paths", nargs="+", type=Path, help="files or folders to ingest")
     parser.add_argument("--reset", action="store_true", help="delete all stored chunks first")
     args = parser.parse_args()
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # Windows consoles
 
     files = iter_files(args.paths)
     if not files:

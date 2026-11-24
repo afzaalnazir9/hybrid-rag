@@ -17,6 +17,15 @@ uv run pytest
 uv run python -m rag.ingest sample_data
 ```
 
+Search from the command line (modes: `semantic`, `keyword`, `hybrid`, `hybrid_rerank`):
+
+```bash
+uv run python -m rag.retrieve "What does error NB-4012 mean?"
+uv run python -m rag.retrieve "What does error NB-4012 mean?" --mode keyword
+```
+
+Each result shows its score from every stage (semantic, keyword, RRF, rerank).
+
 Supported files: `.pdf`, `.docx`, `.txt`, `.md`. Re-running skips unchanged files, and a changed file replaces its old chunks. Use `--reset` to start over.
 
 The `sample_data/` documents describe **Nimbus Notes**, a fictional app written for this demo. They include error codes like `NB-4012` that show where keyword search beats semantic search.

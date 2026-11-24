@@ -21,15 +21,17 @@ class Settings(BaseSettings):
     model_cache_dir: Path = Path("data/models")
     dense_model: str = "BAAI/bge-small-en-v1.5"
     sparse_model: str = "Qdrant/bm25"
-    rerank_model: str = "BAAI/bge-reranker-base"
+    rerank_model: str = "Xenova/ms-marco-MiniLM-L-12-v2"  # ~120 MB cross-encoder
 
     # Chunking
     chunk_size: int = 800
     chunk_overlap: int = 150
 
     # Retrieval
-    candidates_per_search: int = 20
-    top_k: int = 5
+    candidates_per_search: int = 20  # results taken from each search before fusion
+    rerank_candidates: int = 20  # fused results passed to the reranker
+    top_k: int = 5  # chunks finally given to the LLM
+    rrf_k: int = 60  # Reciprocal Rank Fusion constant
 
 
 @lru_cache
