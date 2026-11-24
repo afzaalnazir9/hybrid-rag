@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 from qdrant_client import QdrantClient
 
-from rag.ingest import ingest_file, iter_files
+from rag.ingest import delete_document, ingest_file, iter_files, list_documents
 from rag.retrieve import MODES, search
 
 pytestmark = pytest.mark.integration
@@ -44,3 +44,15 @@ def test_source_filter(client):
 
 def test_reingest_unchanged_is_skipped(client):
     assert ingest_file(SAMPLE / "nimbus_user_guide.md", client=client) == 0
+
+
+def test_list_and_delete_documents():
+    c = QdrantClient(":memory:")
+    for f in iter_files([SAMPLE]):
+        ingest_file(f, client=c)
+    docs = list_documents(c)
+    assert set(docs) == {f.name for f in iter_files([SAMPLE])}
+    assert all(n > 0 for n in docs.values())
+    delete_document("nimbus_user_guide.md", client=c)
+    assert "nimbus_user_guide.md" not in list_documents(c)
+    c.close()

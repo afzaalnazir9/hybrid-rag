@@ -6,6 +6,14 @@ Retrieval is **hybrid**: semantic search (embeddings) and keyword search (BM25) 
 
 > 🚧 Work in progress. See [PLAN.md](PLAN.md) for the roadmap.
 
+## Web app
+
+```bash
+uv run streamlit run app.py
+```
+
+Then open http://localhost:8501. From the sidebar you can upload files or load the sample documents, remove documents, and switch retrieval mode. Answers stream in, with expandable **Sources** (the passages the answer cites) and **Retrieved passages and scores** (every chunk the search returned, with its semantic, keyword, RRF and rerank scores).
+
 ## Quick start
 
 ```bash

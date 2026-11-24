@@ -158,6 +158,30 @@ def ingest_file(path: Path, source: str | None = None, client: QdrantClient | No
     return len(points)
 
 
+def list_documents(client: QdrantClient | None = None) -> dict[str, int]:
+    """Map each stored source name to its number of chunks."""
+    s = get_settings()
+    client = client or get_client()
+    if not client.collection_exists(s.collection_name):
+        return {}
+    counts: dict[str, int] = {}
+    offset = None
+    while True:
+        points, offset = client.scroll(
+            s.collection_name, limit=256, offset=offset, with_payload=["source"]
+        )
+        for p in points:
+            src = (p.payload or {}).get("source", "?")
+            counts[src] = counts.get(src, 0) + 1
+        if offset is None:
+            return dict(sorted(counts.items()))
+
+
+def delete_document(source: str, client: QdrantClient | None = None) -> None:
+    client = client or get_client()
+    client.delete(get_settings().collection_name, points_selector=_source_filter(source))
+
+
 def iter_files(paths: list[Path]) -> list[Path]:
     files: list[Path] = []
     for p in paths:
