@@ -17,7 +17,8 @@ class Settings(BaseSettings):
     qdrant_path: Path = Path("data/qdrant")
     collection_name: str = "documents"
 
-    # Models (run locally via FastEmbed)
+    # Models (run locally via FastEmbed, downloaded once into model_cache_dir)
+    model_cache_dir: Path = Path("data/models")
     dense_model: str = "BAAI/bge-small-en-v1.5"
     sparse_model: str = "Qdrant/bm25"
     rerank_model: str = "BAAI/bge-reranker-base"

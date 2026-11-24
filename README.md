@@ -12,7 +12,14 @@ Retrieval is **hybrid**: semantic search (embeddings) and keyword search (BM25) 
 uv sync
 cp .env.example .env   # then add your ANTHROPIC_API_KEY
 uv run pytest
+
+# Index the demo documents (downloads small local models on first run)
+uv run python -m rag.ingest sample_data
 ```
+
+Supported files: `.pdf`, `.docx`, `.txt`, `.md`. Re-running skips unchanged files, and a changed file replaces its old chunks. Use `--reset` to start over.
+
+The `sample_data/` documents describe **Nimbus Notes**, a fictional app written for this demo. They include error codes like `NB-4012` that show where keyword search beats semantic search.
 
 ## License
 
