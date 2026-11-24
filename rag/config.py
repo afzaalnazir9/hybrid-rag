@@ -9,6 +9,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
+    # Which model writes answers: "auto" uses Claude when an API key is available,
+    # otherwise a local model through Ollama. "claude" or "ollama" forces one.
+    llm_provider: str = "auto"
+
+    # Local model (Ollama)
+    ollama_host: str = "http://localhost:11434"
+    ollama_model: str = "llama3.2:3b"
+
     # Claude
     anthropic_api_key: str = ""
     claude_model: str = "claude-opus-5-5"

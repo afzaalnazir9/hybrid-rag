@@ -26,13 +26,18 @@ uv run python -m rag.retrieve "What does error NB-4012 mean?" --mode keyword
 
 Each result shows its score from every stage (semantic, keyword, RRF, rerank).
 
-Ask a question and get a cited answer from Claude (needs `ANTHROPIC_API_KEY` in `.env`):
+Ask a question and get a cited answer:
 
 ```bash
 uv run python -m rag.generate "Can I get a refund on a yearly plan?"
 ```
 
-Each retrieved chunk is sent to Claude as a separate document with citations enabled, so the `[n]` markers in the answer point at the exact passages used.
+The answer model is chosen automatically:
+
+- **Claude** if `ANTHROPIC_API_KEY` is set. Each retrieved chunk is sent as a separate document with citations enabled, so the `[n]` markers point at the exact passages used.
+- **A local model via [Ollama](https://ollama.com)** otherwise, so no API key is needed. Install Ollama and run `ollama pull llama3.2:3b` once. Chunks are numbered in the prompt and the model cites them as `[n]`.
+
+Force one with `LLM_PROVIDER=claude` or `LLM_PROVIDER=ollama` in `.env`, or `--provider` on the command line.
 
 Supported files: `.pdf`, `.docx`, `.txt`, `.md`. Re-running skips unchanged files, and a changed file replaces its old chunks. Use `--reset` to start over.
 
