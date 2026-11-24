@@ -10,10 +10,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.12"
-      - run: uv sync
-      - run: uv run ruff check .
-      - run: uv run ruff format --check .
-      - run: uv run pytest -q
+          enable-cache: true
+
+      - name: Install dependencies (fails if uv.lock is out of date)
+        run: uv sync --locked
+
+      - name: Lint
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      # The integration tests download ~200 MB of embedding/rerank models; keep them between runs.
+      - name: Cache local models
+        uses: actions/cache@v4
+        with:
+          path: data/models
+          key: models-${{ hashFiles('rag/config.py') }}
+
+      - name: Tests
+        run: uv run pytest -q
+
+      - name: Retrieval evaluation
+        run: uv run python eval.py

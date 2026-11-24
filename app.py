@@ -3,6 +3,7 @@
 Run with:  uv run streamlit run app.py
 """
 
+import re
 import tempfile
 from pathlib import Path
 
@@ -113,18 +114,23 @@ with st.sidebar:
 # ---------- chat ----------
 
 
+def as_caption(text: str) -> str:
+    """Keep passage text small: turn Markdown headings into bold lines."""
+    return re.sub(r"^#{1,6}\s+(.+)$", r"**\1**", text, flags=re.MULTILINE)
+
+
 def show_sources(msg: dict) -> None:
     if msg.get("sources"):
         with st.expander(f"Sources ({len(msg['sources'])})"):
             for n, label, text in msg["sources"]:
                 st.markdown(f"**[{n}] {label}**")
-                st.caption(text)
+                st.caption(as_caption(text))
     if msg.get("retrieved"):
         with st.expander(f"Retrieved passages and scores ({len(msg['retrieved'])})"):
             for i, (label, stages, preview) in enumerate(msg["retrieved"], 1):
                 scores = " · ".join(f"{k} {v:.3f}" for k, v in stages.items())
                 st.markdown(f"**{i}. {label}**  \n`{scores}`")
-                st.caption(preview)
+                st.caption(as_caption(preview))
     if msg.get("model"):
         st.caption(f"Answered by {msg['model']}")
 

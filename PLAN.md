@@ -1,6 +1,8 @@
 # Hybrid RAG System — Project Plan (v2, reduced scope)
 
-> Status: **DRAFT for review**. Nothing is built yet.
+> Status: **built**. All seven steps are done; see [README.md](README.md). Changes from this plan:
+> - Reranker is `ms-marco-MiniLM-L-12-v2` (~120 MB) instead of `bge-reranker-base` (~1 GB).
+> - Answers fall back to a local Ollama model (`llama3.2:3b`) when no Claude API key is set.
 
 ## 1. What we're building
 

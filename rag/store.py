@@ -17,7 +17,15 @@ def get_client() -> QdrantClient:
     """Qdrant in local mode: data lives on disk, no server needed."""
     path = get_settings().qdrant_path
     path.mkdir(parents=True, exist_ok=True)
-    return QdrantClient(path=str(path))
+    try:
+        return QdrantClient(path=str(path))
+    except RuntimeError as e:
+        if "already accessed" not in str(e):
+            raise
+        raise SystemExit(
+            f"The index in {path} is in use by another process (probably the Streamlit app). "
+            "Local-mode Qdrant allows one process at a time; stop the other one and retry."
+        ) from e
 
 
 @lru_cache
