@@ -14,6 +14,36 @@ uv run streamlit run app.py
 
 Then open http://localhost:8501. From the sidebar you can upload files or load the sample documents, remove documents, and switch retrieval mode. Answers stream in, with expandable **Sources** (the passages the answer cites) and **Retrieved passages and scores** (every chunk the search returned, with its semantic, keyword, RRF and rerank scores).
 
+## Does hybrid search help? (evaluation)
+
+[eval.py](eval.py) runs 22 labelled questions ([eval_questions.json](eval_questions.json)) against the sample documents in every retrieval mode. Each question names a phrase the correct passage contains. No language model is involved, so results are the same on every run.
+
+```bash
+uv run python eval.py
+```
+
+| Mode | Hit@1 | Hit@3 | MRR | Avg search time |
+|---|---|---|---|---|
+| semantic | 64% | 91% | 0.78 | 9 ms |
+| keyword | 68% | 82% | 0.75 | 1 ms |
+| hybrid | 77% | 95% | 0.87 | 9 ms |
+| **hybrid_rerank** | **82%** | **100%** | **0.91** | 1063 ms |
+
+Split by question type:
+
+| Mode | Keyword questions (10) Hit@1 | Paraphrased questions (12) Hit@1 |
+|---|---|---|
+| semantic | 80% | 50% |
+| keyword | 100% | 42% |
+| hybrid | 100% | 58% |
+| hybrid_rerank | 100% | 67% |
+
+- **Keyword search** is perfect on exact terms like error codes (`NB-4012`) but weak when the question uses different words than the document.
+- **Semantic search** handles paraphrases better but misses some exact codes.
+- **Hybrid** gets the best of both, and **reranking** puts the right passage first more often, at the cost of about one second per query on a CPU.
+
+The sample set is small (3 documents, 14 chunks), so treat these numbers as a demonstration rather than a benchmark. Full tables: [eval_results.md](eval_results.md).
+
 ## Quick start
 
 ```bash
