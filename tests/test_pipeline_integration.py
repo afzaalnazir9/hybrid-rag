@@ -1,7 +1,7 @@
 """End-to-end check with the real local models and an in-memory Qdrant.
 
 Downloads the embedding and reranker models (~200 MB) on first run.
-Skip with: pytest -m "not integration"
+Skip with: pytest -m "not integration and not live"
 """
 
 from pathlib import Path
@@ -16,13 +16,9 @@ pytestmark = pytest.mark.integration
 SAMPLE = Path(__file__).parent.parent / "sample_data"
 
 
-@pytest.fixture(scope="module")
-def client():
-    c = QdrantClient(":memory:")
-    for f in iter_files([SAMPLE]):
-        assert ingest_file(f, client=c) > 0
-    yield c
-    c.close()
+@pytest.fixture
+def client(sample_index):
+    return sample_index
 
 
 @pytest.mark.parametrize("mode", MODES)

@@ -92,13 +92,38 @@ uv run streamlit run app.py
 
 Open http://localhost:8501 and click **Load sample documents** in the sidebar, or upload your own files. The first run downloads the embedding and reranker models (about 200 MB) into `data/models/`.
 
-Example questions for the sample documents:
-
-- *What does error NB-4012 mean and how do I fix it?*
-- *Can I get my money back after buying a yearly subscription?*
-- *Does Nimbus Notes support video calls?* (not in the documents, so it should say so)
-
 The sample documents describe **Nimbus Notes**, a fictional app written for this demo.
+
+### Example questions to try
+
+These are also automated in [tests/test_examples.py](tests/test_examples.py).
+
+| Question | Expected answer |
+|---|---|
+| **Exact terms** (keyword search's strength) | |
+| What does error NB-4012 mean and how do I fix it? | Local database corrupted; Settings → Advanced → "Rebuild local cache" |
+| What is NB-1004? | Workspace limit reached (an 11th workspace on Free) |
+| What is the shortcut for focus mode on macOS? | Cmd+Ctrl+F |
+| Is SAML 2.0 supported? | Yes, single sign-on on the Team plan |
+| **Reworded questions** (meaning-based search's strength) | |
+| Can I get my money back after buying a yearly subscription? | Annual Pro: full refund within 14 days; monthly: no refund |
+| My notes disappeared, where could they be? | Trash (kept 30 days), another workspace, removed share access, version history |
+| What happens if my card payment doesn't go through? | 3 retries over 10 days, then moved to Free; nothing deleted |
+| Will my writing be used to train AI? | No |
+| Can my coworkers edit a notebook I share? | Yes on Team: Viewer, Editor or Owner roles |
+| **Facts from tables** | |
+| How much does the Team plan cost? | $10 per user per month |
+| How much storage does Pro include? | 100 GB |
+| How long is version history kept on the Free plan? | 7 days |
+| Compare the attachment size limits of Free and Pro. | 25 MB vs 250 MB |
+| **Not in the documents** (should say so, not invent) | |
+| Does Nimbus Notes support video calls? | "I couldn't find this in the documents." |
+| Does the app have a dark mode? | Same |
+| Who is the CEO of Nimbus? | Same |
+
+**Follow-up:** ask *How much is the Pro plan?* ($6/month), then *Is there a cheaper price for students?* ($3/month, which shows the chat remembers the topic).
+
+**Compare search modes:** ask *What is NB-1004?* while switching **Retrieval mode** in the sidebar, and open **Retrieved passages and scores** to see how the ranking changes.
 
 ## Command line
 
@@ -145,18 +170,23 @@ rag/
 app.py          Streamlit UI
 eval.py         retrieval evaluation (eval_questions.json -> eval_results.md)
 sample_data/    fictional demo documents
-tests/          unit tests + an end-to-end test with the real models
+tests/          unit tests, end-to-end search tests, and example questions (test_examples.py)
 ```
 
 ## Tests
 
 ```bash
-uv run pytest                    # everything (first run downloads ~200 MB of models)
-uv run pytest -m "not integration"   # fast unit tests only
+uv run pytest                                          # unit + search tests (downloads ~200 MB of models once)
+uv run pytest -m "not integration and not live"        # fast unit tests only
+uv run pytest -m live -v                               # ask a real model the example questions (slow)
 uv run ruff check . && uv run ruff format --check .
 ```
 
-Language-model calls are tested with fake clients, so the tests need no API key and no Ollama. CI runs lint and the full test suite on every push.
+- **Unit tests** use fake Claude and Ollama clients, so they need no API key and no Ollama.
+- **Search tests** check that the passage answering each [example question](tests/test_examples.py) is in the top 3 results.
+- **Live tests** (`-m live`, skipped by default) send each example question to the real answer model (Claude if a key is set, otherwise Ollama) and check the answer mentions the expected facts. They skip themselves if no model is available, and take about 30–40 s per question with the local model.
+
+CI runs lint, the unit and search tests, and the evaluation on every push.
 
 ## Limitations
 
